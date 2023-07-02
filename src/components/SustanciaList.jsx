@@ -4,11 +4,18 @@ import {
 	deleteSustancia,
 } from '../features/sustancias/sustanciaSlice';
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function SustanciaList() {
 	const sustancias = useSelector((state) => state.sustancias.sustanciasArray);
 	const dispatch = useDispatch();
+	const [searchTerm, setSearchTerm] = useState('');
+
+	const filteredSustancias = sustancias.filter((sustancia) =>
+		sustancia.sustancia.nombre
+			.toLowerCase()
+			.includes(searchTerm.toLowerCase())
+	);
 
 	useEffect(() => {
 		if (sustancias.length === 0) {
@@ -26,6 +33,15 @@ function SustanciaList() {
 				<h1 className='font-bold text-3xl'>
 					Sustancias {sustancias.length}
 				</h1>
+				<input
+					name='buscar'
+					type='text'
+					placeholder=' 🔍 Buscar '
+					className='w-3/5 p-1 rounded-md bg-zinc-600 mb-2 mt-3'
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+				/>
+
 				<Link
 					to={'/create-sustancia'}
 					className='bg-indigo-600 px-2 py-1 rounded-sm text-md'
@@ -35,7 +51,7 @@ function SustanciaList() {
 			</header>
 			<div className='h-96 overflow-y-auto scrollbar-hidden'>
 				<div className='grid grid-cols-3 gap-6 scrollbar-hidden'>
-					{sustancias.map((newSustancia) => (
+					{filteredSustancias.map((newSustancia) => (
 						<div
 							key={newSustancia.id}
 							className='bg-neutral-800 p-4 rounded-md flex flex-col justify-between'

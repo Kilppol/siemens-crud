@@ -4,7 +4,10 @@ import { addSustanciaToFirestore } from '../features/sustancias/sustanciaSlice';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchSustanciaById } from '../features/sustancias/sustanciaSlice';
 import { useSelector } from 'react-redux';
-import { updateSustanciaInFirestore } from '../features/sustancias/sustanciaSlice';
+import {
+	updateSustanciaInFirestore,
+	uploadImageToFirestore,
+} from '../features/sustancias/sustanciaSlice';
 
 function SustanciaForm() {
 	const [isEditing, setIsEditing] = useState(false);
@@ -21,6 +24,7 @@ function SustanciaForm() {
 		cantidadEstimada: '',
 		tipodeContenedor: '',
 		consumoPromedio: '',
+		imagen: null,
 	});
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -45,44 +49,67 @@ function SustanciaForm() {
 			[e.target.name]: e.target.value,
 		});
 	};
+	const handleImageChange = (e) => {
+		const imageFile = e.target.files[0];
+		setSustancia({
+			...sustancia,
+			imagen: imageFile,
+		});
+	};
+	const handleImageUpload = () => {
+		return new Promise((resolve, reject) => {
+			dispatch(uploadImageToFirestore(sustancia.imagen))
+				.then((action) => {
+					const imageUrl = action.payload; // Obtiene la URL de la imagen del payload
+					resolve(imageUrl);
+				})
+				.catch((error) => {
+					reject(error);
+				});
+		});
+	};
 
 	const handleAddSustanciaToFirebase = (e) => {
 		e.preventDefault();
 
-		if (isEditing) {
-			// Lógica para actualizar la sustancia existente
-			dispatch(
-				updateSustanciaInFirestore({
-					id: sustanciaInicial.id,
-					nombre: sustancia.nombre,
-					principalesUsos: sustancia.principalesUsos,
-					palabraAdvertencia: sustancia.palabraAdvertencia,
-					telefonoEmergencia: sustancia.telefonoEmergencia,
-					area: sustancia.area,
-					cantidadEstimada: sustancia.cantidadEstimada,
-					tipodeContenedor: sustancia.tipodeContenedor,
-					consumoPromedio: sustancia.consumoPromedio,
-				})
-			);
-		} else {
-			// Lógica para agregar una nueva sustancia
-			dispatch(addSustanciaToFirestore(sustancia));
-		}
+		handleImageUpload().then((imageUrl) => {
+			if (isEditing) {
+				// Lógica para actualizar la sustancia existente
+				dispatch(
+					updateSustanciaInFirestore({
+						id: sustanciaInicial.id,
+						nombre: sustancia.nombre,
+						principalesUsos: sustancia.principalesUsos,
+						palabraAdvertencia: sustancia.palabraAdvertencia,
+						telefonoEmergencia: sustancia.telefonoEmergencia,
+						area: sustancia.area,
+						cantidadEstimada: sustancia.cantidadEstimada,
+						tipodeContenedor: sustancia.tipodeContenedor,
+						consumoPromedio: sustancia.consumoPromedio,
+						imagen: imageUrl,
+					})
+				);
+			} else {
+				// Lógica para agregar una nueva sustancia
+				dispatch(addSustanciaToFirestore(sustancia));
+			}
 
-		navigate('/'); // Utiliza navigate('/') en lugar de history.push('/')
-		// Reiniciar el estado de la sustancia a sus valores iniciales después de 100 milisegundos
-		setTimeout(() => {
-			setSustancia({
-				nombre: '',
-				principalesUsos: '',
-				palabraAdvertencia: '',
-				telefonoEmergencia: '',
-				area: '',
-				cantidadEstimada: '',
-				tipodeContenedor: '',
-				consumoPromedio: '',
-			});
-		}, 100);
+			navigate('/');
+
+			setTimeout(() => {
+				setSustancia({
+					nombre: '',
+					principalesUsos: '',
+					palabraAdvertencia: '',
+					telefonoEmergencia: '',
+					area: '',
+					cantidadEstimada: '',
+					tipodeContenedor: '',
+					consumoPromedio: '',
+					imagen: null,
+				});
+			}, 100);
+		});
 	};
 
 	return (
@@ -196,6 +223,15 @@ function SustanciaForm() {
 					value={sustancia.consumoPromedio}
 					className='w-full p-2 rounded-md bg-zinc-600 mb-2'
 				/>
+				{isEditing && (
+					<input
+						type='file'
+						name='imagen'
+						onChange={handleImageChange}
+						className='mb-2'
+					/>
+				)}
+
 				<div className='flex justify-center'>
 					<button className='bg-indigo-600 px-20 py-1 rounded-sm text-md '>
 						Save

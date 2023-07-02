@@ -9,7 +9,20 @@ import {
 	updateDoc,
 } from 'firebase/firestore';
 import db from '../../Firebase/Config';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
+// Subir imagen a Firestore
+export const uploadImageToFirestore = createAsyncThunk(
+	'sustancia/uploadImageToFirestore',
+	async (image) => {
+		const storage = getStorage();
+		const imageRef = ref(storage, `images/${image.name}`);
+		await uploadBytes(imageRef, image);
+		const downloadURL = await getDownloadURL(imageRef);
+
+		return downloadURL;
+	}
+);
 //add a sustancia to firestore
 export const addSustanciaToFirestore = createAsyncThunk(
 	'sustancia/addSustanciaToFirestore',
@@ -74,6 +87,7 @@ export const updateSustanciaInFirestore = createAsyncThunk(
 		cantidadEstimada,
 		tipodeContenedor,
 		consumoPromedio,
+		imagen,
 	}) => {
 		try {
 			const docRef = doc(db, 'Sustancias', id);
@@ -86,6 +100,7 @@ export const updateSustanciaInFirestore = createAsyncThunk(
 				cantidadEstimada: cantidadEstimada,
 				tipodeContenedor: tipodeContenedor,
 				consumoPromedio: consumoPromedio,
+				imagen: imagen,
 			});
 
 			return {
@@ -98,6 +113,7 @@ export const updateSustanciaInFirestore = createAsyncThunk(
 				cantidadEstimada: cantidadEstimada,
 				tipodeContenedor: tipodeContenedor,
 				consumoPromedio: consumoPromedio,
+				imagen: imagen,
 			}; // Devuelve la sustancia actualizada
 		} catch (error) {
 			throw new Error('Error al actualizar la sustancia: ' + error.message);
@@ -155,6 +171,9 @@ export const sustanciaSlice = createSlice({
 			})
 			.addCase(fetchSustanciaById.fulfilled, (state, action) => {
 				state.sustanciaInicial = action.payload;
+			})
+			.addCase(uploadImageToFirestore.fulfilled, (state, action) => {
+				state.imagenURL = action.payload;
 			});
 	},
 });

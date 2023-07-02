@@ -59,7 +59,7 @@ function SustanciaList() {
 							<header
 								className='bg-local'
 								style={{
-									backgroundImage: `url(https://th.bing.com/th/id/OIP.rTuqNV7LI57COThAjHwYTgAAAA?pid=ImgDet&w=400&h=400&rs=1)`,
+									backgroundImage: `url(${newSustancia.sustancia.imagen})`,
 									width: '100%',
 									height: '150px',
 									borderRadius: 10,

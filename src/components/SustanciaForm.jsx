@@ -10,8 +10,8 @@ import {
 } from '../features/sustancias/sustanciaSlice';
 
 function SustanciaForm() {
+	const [error, setError] = useState('');
 	const [isEditing, setIsEditing] = useState(false);
-
 	const sustanciaInicial = useSelector(
 		(state) => state.sustancias.sustanciaInicial
 	);
@@ -69,13 +69,30 @@ function SustanciaForm() {
 		});
 	};
 
-	const handleAddSustanciaToFirebase = (e) => {
+	const handleAddSustanciaToFirebase = async (e) => {
 		e.preventDefault();
+		// Restablecer el estado de error
+		setError(null);
 
-		handleImageUpload().then((imageUrl) => {
+		if (
+			sustancia.nombre.trim() === '' ||
+			sustancia.principalesUsos.trim() === '' ||
+			sustancia.palabraAdvertencia.trim() === '' ||
+			sustancia.telefonoEmergencia.trim() === '' ||
+			sustancia.area.trim() === '' ||
+			sustancia.cantidadEstimada.trim() === '' ||
+			sustancia.tipodeContenedor.trim() === '' ||
+			sustancia.consumoPromedio.trim() === ''
+		) {
+			setError('Todos los campos son obligatorios');
+			return;
+		}
+		try {
+			const imageUrl = await handleImageUpload();
+
 			if (isEditing) {
 				// Lógica para actualizar la sustancia existente
-				dispatch(
+				await dispatch(
 					updateSustanciaInFirestore({
 						id: sustanciaInicial.id,
 						nombre: sustancia.nombre,
@@ -91,10 +108,19 @@ function SustanciaForm() {
 				);
 			} else {
 				// Lógica para agregar una nueva sustancia
-				dispatch(addSustanciaToFirestore(sustancia));
+				const actionResult = await dispatch(
+					addSustanciaToFirestore(sustancia)
+				);
+
+				// Verificar si hubo un error en la acción
+				if (addSustanciaToFirestore.rejected.match(actionResult)) {
+					setError(actionResult.error.message);
+					throw new Error(actionResult.error.message);
+				}
 			}
 
-			navigate('/');
+			// Si no hubo errores, realizar la navegación
+			navigate('/sustancia-list');
 
 			setTimeout(() => {
 				setSustancia({
@@ -109,7 +135,11 @@ function SustanciaForm() {
 					imagen: null,
 				});
 			}, 100);
-		});
+		} catch (error) {
+			// Manejo del error
+			console.error('Error:', error.message);
+			// Mostrar mensaje de error al usuario o realizar alguna acción adicional
+		}
 	};
 
 	return (
@@ -232,8 +262,11 @@ function SustanciaForm() {
 					/>
 				)}
 
-				<div className='flex justify-center'>
-					<button className='bg-indigo-600 px-20 py-1 rounded-sm text-md '>
+				<div className='flex flex-col items-center justify-center'>
+					{error && (
+						<p className=' font-bold py-2 text-red-400'>{error}</p>
+					)}
+					<button className='bg-indigo-600 px-20 py-1 rounded-sm text-md'>
 						Save
 					</button>
 				</div>

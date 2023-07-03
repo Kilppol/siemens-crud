@@ -27,6 +27,19 @@ export const uploadImageToFirestore = createAsyncThunk(
 export const addSustanciaToFirestore = createAsyncThunk(
 	'sustancia/addSustanciaToFirestore',
 	async (sustancia) => {
+		// Verificar campos vacíos
+		if (
+			sustancia.nombre.trim() === '' ||
+			sustancia.principalesUsos.trim() === '' ||
+			sustancia.palabraAdvertencia.trim() === '' ||
+			sustancia.telefonoEmergencia.trim() === '' ||
+			sustancia.area.trim() === '' ||
+			sustancia.cantidadEstimada.trim() === '' ||
+			sustancia.tipodeContenedor.trim() === '' ||
+			sustancia.consumoPromedio.trim() === ''
+		) {
+			throw new Error('Todos los campos son obligatorios');
+		}
 		const querySnapshot = await getDocs(collection(db, 'Sustancias'));
 		const existingSustancia = querySnapshot.docs.find(
 			(doc) => doc.data().nombre === sustancia.nombre
@@ -89,6 +102,18 @@ export const updateSustanciaInFirestore = createAsyncThunk(
 		consumoPromedio,
 		imagen,
 	}) => {
+		if (
+			nombre.trim() === '' ||
+			principalesUsos.trim() === '' ||
+			palabraAdvertencia.trim() === '' ||
+			telefonoEmergencia.trim() === '' ||
+			area.trim() === '' ||
+			cantidadEstimada.trim() === '' ||
+			tipodeContenedor.trim() === '' ||
+			consumoPromedio.trim() === ''
+		) {
+			throw new Error('Todos los campos son obligatorios');
+		}
 		try {
 			const docRef = doc(db, 'Sustancias', id);
 			await updateDoc(docRef, {
@@ -144,12 +169,17 @@ export const sustanciaSlice = createSlice({
 	name: 'sustancias',
 	initialState: {
 		sustanciasArray: [],
+		error: null,
 	},
 	reducers: {},
 	extraReducers: (builder) => {
 		builder
 			.addCase(addSustanciaToFirestore.fulfilled, (state, action) => {
 				state.sustanciasArray.push(action.payload);
+				state.error = null; // Restablece el error a null después de agregar la sustancia
+			})
+			.addCase(addSustanciaToFirestore.rejected, (state, action) => {
+				state.error = action.error.message; // Almacena el mensaje de error en el estado
 			})
 			.addCase(fetchSustancias.fulfilled, (state, action) => {
 				state.sustanciasArray = action.payload;

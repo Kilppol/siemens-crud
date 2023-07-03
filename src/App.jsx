@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import SustanciaForm from './components/SustanciaForm';
 import SustanciaList from './components/SustanciaList';
+import Login from './components/Login';
 
 function App() {
 	return (
@@ -8,7 +9,11 @@ function App() {
 			<div className='flex items-center justify-center h-full'>
 				<BrowserRouter>
 					<Routes>
-						<Route path='/' element={<SustanciaList />}></Route>
+						<Route path='/' element={<Login />}></Route>
+						<Route
+							path='/sustancia-list'
+							element={<SustanciaList />}
+						></Route>
 						<Route
 							path='/create-sustancia'
 							element={<SustanciaForm />}

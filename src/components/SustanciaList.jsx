@@ -5,8 +5,16 @@ import {
 } from '../features/sustancias/sustanciaSlice';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { clearUser, setUser } from '../features/auth/userSlice';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import Logo from '../assets/siemensLogoR.png';
 
 function SustanciaList() {
+	//const user = useSelector((state) => state.auth.user);
+	const [userEmail, setUserEmail] = useState('');
+	//const userEmail = user ? user.email : null;
+	const navigate = useNavigate();
 	const sustancias = useSelector((state) => state.sustancias.sustanciasArray);
 	const dispatch = useDispatch();
 	const [searchTerm, setSearchTerm] = useState('');
@@ -26,13 +34,67 @@ function SustanciaList() {
 	const handleDelete = (id) => {
 		dispatch(deleteSustancia(id));
 	};
+	const handleLogout = async () => {
+		const auth = getAuth();
+		try {
+			// Cerrar sesión en Firebase
+			await signOut(auth);
+			// Limpiar el usuario en Redux
+			dispatch(clearUser());
+			navigate('/');
+		} catch (error) {
+			console.error('Error al cerrar sesión:', error);
+		}
+	};
+	useEffect(() => {
+		const auth = getAuth();
+		const unsubscribe = onAuthStateChanged(auth, (user) => {
+			if (user) {
+				setUserEmail(user.email);
+				dispatch(
+					setUser({ id: user.id, name: user.name, email: user.email })
+				);
+			} else {
+				setUserEmail('');
+				dispatch(clearUser());
+				navigate('/');
+			}
+		});
+		return () => unsubscribe();
+	}, [dispatch, navigate]);
 
 	return (
 		<div className='w-3/4'>
+			<div className='flex place-content-between'>
+				<div className='flex items-center'>
+					<span style={{ fontSize: '2rem' }}>💁</span>
+					<p className='py-3 px-2 font-bold'>{userEmail}</p>
+				</div>
+				<div className='flex items-center'>
+					<img
+						className='space-x-10'
+						src={Logo}
+						alt='siemens-logo'
+						style={{
+							width: 200,
+							height: 30,
+							marginTop: 0,
+							marginRight: 150,
+						}}
+					/>
+				</div>
+				<button
+					className='bg-red-400 px-2 py-1 rounded-sm text-md'
+					onClick={handleLogout}
+				>
+					Cerrar sesión
+				</button>
+			</div>
 			<header className='flex justify-between items-center py-4'>
 				<h1 className='font-bold text-3xl'>
 					Sustancias {sustancias.length}
 				</h1>
+
 				<input
 					name='buscar'
 					type='text'
@@ -41,13 +103,16 @@ function SustanciaList() {
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
 				/>
-
-				<Link
-					to={'/create-sustancia'}
-					className='bg-indigo-600 px-2 py-1 rounded-sm text-md'
-				>
-					Nueva Sustancia
-				</Link>
+				{userEmail && userEmail.includes('admin') && (
+					<div>
+						<Link
+							to={'/create-sustancia'}
+							className='bg-indigo-600 px-2 py-1 rounded-sm text-md'
+						>
+							Nueva Sustancia
+						</Link>
+					</div>
+				)}
 			</header>
 			<div className='h-96 overflow-y-auto scrollbar-hidden'>
 				<div className='grid grid-cols-3 gap-6 scrollbar-hidden'>
@@ -156,20 +221,22 @@ function SustanciaList() {
 									{newSustancia.sustancia.consumoPromedio}
 								</p>
 							</div>
-							<div className='flex justify-between   mt-5'>
-								<Link
-									to={`/edit-sustancia/${newSustancia.id}`}
-									className='bg-zinc-600 px-3 py-1 text-md rounded-md'
-								>
-									Edit
-								</Link>
-								<button
-									className='bg-red-500 px-3 py-1 text-md rounded-md'
-									onClick={() => handleDelete(newSustancia.id)}
-								>
-									Delete
-								</button>
-							</div>
+							{userEmail && userEmail.includes('admin') && (
+								<div className='flex justify-between   mt-5'>
+									<Link
+										to={`/edit-sustancia/${newSustancia.id}`}
+										className='bg-zinc-600 px-3 py-1 text-md rounded-md'
+									>
+										Editar
+									</Link>
+									<button
+										className='bg-red-500 px-3 py-1 text-md rounded-md'
+										onClick={() => handleDelete(newSustancia.id)}
+									>
+										Eliminar
+									</button>
+								</div>
+							)}
 						</div>
 					))}
 				</div>

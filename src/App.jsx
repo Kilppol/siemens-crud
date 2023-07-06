@@ -9,17 +9,17 @@ function App() {
 			<div className='flex items-center justify-center h-full'>
 				<BrowserRouter>
 					<Routes>
-						<Route path='/' element={<Login />}></Route>
+						<Route exact path='/' element={<Login />}></Route>
 						<Route
-							path='sustancia-list'
+							path='/sustancia-list'
 							element={<SustanciaList />}
 						></Route>
 						<Route
-							path='create-sustancia'
+							path='/create-sustancia'
 							element={<SustanciaForm />}
 						></Route>
 						<Route
-							path='edit-sustancia/:id'
+							path='/edit-sustancia/:id'
 							element={<SustanciaForm />}
 						></Route>
 					</Routes>

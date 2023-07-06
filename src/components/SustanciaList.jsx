@@ -41,7 +41,7 @@ function SustanciaList() {
 			await signOut(auth);
 			// Limpiar el usuario en Redux
 			dispatch(clearUser());
-			navigate('/');
+			navigate('/siemens-crud');
 		} catch (error) {
 			console.error('Error al cerrar sesión:', error);
 		}
@@ -57,7 +57,7 @@ function SustanciaList() {
 			} else {
 				setUserEmail('');
 				dispatch(clearUser());
-				navigate('/');
+				navigate('/siemens-crud');
 			}
 		});
 		return () => unsubscribe();
@@ -106,7 +106,7 @@ function SustanciaList() {
 				{userEmail && userEmail.includes('admin') && (
 					<div>
 						<Link
-							to={'/create-sustancia'}
+							to={'/siemens-crud/create-sustancia'}
 							className='bg-indigo-600 px-2 py-1 rounded-sm text-md'
 						>
 							Nueva Sustancia
@@ -224,7 +224,7 @@ function SustanciaList() {
 							{userEmail && userEmail.includes('admin') && (
 								<div className='flex justify-between   mt-5'>
 									<Link
-										to={`/edit-sustancia/${newSustancia.id}`}
+										to={`/siemens-crud/edit-sustancia/${newSustancia.id}`}
 										className='bg-zinc-600 px-3 py-1 text-md rounded-md'
 									>
 										Editar

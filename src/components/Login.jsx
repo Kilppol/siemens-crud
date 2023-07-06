@@ -24,7 +24,7 @@ const LoginForm = () => {
 			const user = userCredential.user;
 			dispatch(setUser(user)); // Guarda el usuario en el estado de Redux
 			// Login was successful, you can perform additional actions here
-			navigate('/sustancia-list'); // Redirect to the desired page after successful login
+			navigate('/siemens-crud/sustancia-list'); // Redirect to the desired page after successful login
 		} catch (error) {
 			setShowAlert(true);
 			console.error('Error al iniciar sesión:', error);

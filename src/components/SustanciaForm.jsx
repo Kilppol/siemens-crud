@@ -120,7 +120,7 @@ function SustanciaForm() {
 			}
 
 			// Si no hubo errores, realizar la navegación
-			navigate('/sustancia-list');
+			navigate('/siemens-crud/sustancia-list');
 
 			setTimeout(() => {
 				setSustancia({

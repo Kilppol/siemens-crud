@@ -9,17 +9,20 @@ function App() {
 			<div className='flex items-center justify-center h-full'>
 				<BrowserRouter>
 					<Routes>
-						<Route exact path='/' element={<Login />}></Route>
+						<Route exact path='/siemens-crud' element={<Login />}></Route>
 						<Route
-							path='/sustancia-list'
+							exact
+							path='/siemens-crud/sustancia-list'
 							element={<SustanciaList />}
 						></Route>
 						<Route
-							path='/create-sustancia'
+							exact
+							path='/siemens-crud/create-sustancia'
 							element={<SustanciaForm />}
 						></Route>
 						<Route
-							path='/edit-sustancia/:id'
+							exact
+							path='/siemens-crud/edit-sustancia/:id'
 							element={<SustanciaForm />}
 						></Route>
 					</Routes>

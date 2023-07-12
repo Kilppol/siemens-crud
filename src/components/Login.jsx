@@ -72,13 +72,25 @@ const LoginForm = () => {
 						placeholder='Contraseña'
 					/>
 				</div>
-				<div className='flex justify-center'>
-					<button
-						onClick={handleLogin}
-						className='bg-green-500 text-white px-7 py-2 rounded border-none cursor-pointer text-lg font-bold'
-					>
-						Iniciar Sesión
-					</button>
+				<div className='flex flex-col items-center justify-center'>
+					<div>
+						<button
+							onClick={handleLogin}
+							className='bg-green-500 text-white px-7 py-2 rounded border-none cursor-pointer text-lg font-bold'
+						>
+							Iniciar Sesión
+						</button>
+					</div>
+					<div className='mt-7'>
+						<a
+							href='https://www.siemens.com/mx/es/compania/acerca-de.html'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='bg-blue-500 text-white px-7 py-2 rounded border-none cursor-pointer text-lg font-bold'
+						>
+							Acerca de nosotros
+						</a>
+					</div>
 				</div>
 				{showAlert && (
 					<div className='self-center pt-5 font-bold text-red-400 '>

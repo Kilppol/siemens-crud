@@ -87,6 +87,14 @@ function SustanciaForm() {
 			setError('Todos los campos son obligatorios');
 			return;
 		}
+		const telefonoRegex = /^\d{10}$/; // Expresión regular para verificar 10 dígitos numéricos
+
+		if (!telefonoRegex.test(sustancia.telefonoEmergencia)) {
+			setError(
+				'El teléfono de emergencia debe contener exactamente 10 dígitos numéricos'
+			);
+			return;
+		}
 		try {
 			const imageUrl = await handleImageUpload();
 
